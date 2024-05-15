@@ -1,0 +1,1 @@
+sudo apt install gpiod libgpiod2 libgpiod-dev libnode-dev

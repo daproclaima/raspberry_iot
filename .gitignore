@@ -1,0 +1,42 @@
+# mqtt broker
+./infrastructure/MqttBroker/pwfile
+./infrastructure/MqttBroker/data/mosquitto.db
+./infrastructure/MqttBroker/log/*
+
+# node.js
+**/node_modules
+**/.pnp
+**/.pnp.js
+
+# testing
+**/coverage
+
+# apps/client
+**/.next/
+**/out/
+**/.vercel
+
+# app/server/production
+**/build
+
+# debug
+**/npm-debug.log*
+**/yarn-debug.log*
+**/yarn-error.log*
+
+# env files
+**/*.env*
+**/!.env.sample
+
+# typescript
+**/*.tsbuildinfo
+**/next-env.d.ts
+
+# medias
+**/*.raw
+
+# misc
+**/.DS_Store
+**/*.pem
+**/.idea
+
