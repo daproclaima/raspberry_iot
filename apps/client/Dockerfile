@@ -32,9 +32,27 @@ FROM deps AS dev
 CMD ["npm", "run", "dev"]
 
 
+
+# "build" stage
+# depends on the "deps" stage above
+FROM deps AS build
+
+ENV NODE_ENV production
+ENV NEXT_TELEMETRY_DISABLED 1
+# set hostname to localhost
+ENV HOSTNAME "0.0.0.0"
+
+RUN addgroup --system --gid 1001 nodejs
+RUN adduser --system --uid 1001 nextjs
+
+COPY --from=deps /app ./app
+
+RUN set -eux; \
+CMD ["npm", "run", "build"]
+
 # "production" stage
 # depends on the "deps" stage above
-FROM deps AS prod
+FROM build AS prod
 
 ENV NODE_ENV production
 ENV NEXT_TELEMETRY_DISABLED 1

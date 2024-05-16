@@ -24,7 +24,7 @@ services:
       - 80:80
       - 443:443
     volumes:
-      - ./infrastructure/ReverseProxy/conf.d:/etc/nginx/conf.d
+      - ./infrastructure/ReverseProxy/conf.d:/etc/nginx/conf.d:rw,cached
 #      - ./infrastructure/ReverseProxy/certs:/etc/nginx/certs
 #    networks:
 #      - mqtt5-network

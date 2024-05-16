@@ -1,7 +1,7 @@
 # mqtt broker
-./infrastructure/MqttBroker/pwfile
-./infrastructure/MqttBroker/data/mosquitto.db
-./infrastructure/MqttBroker/log/*
+./infrastructure/**/pwfile
+./infrastructure/**/mosquitto.db
+./infrastructure/**/log/*
 
 # node.js
 **/node_modules

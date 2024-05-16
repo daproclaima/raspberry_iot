@@ -1,3 +1,4 @@
+#https://kariera.future-processing.pl/blog/dockerfile-good-practices-for-node-and-npm/
 FROM node:22-alpine AS base
 
 # Install dependencies only when needed
