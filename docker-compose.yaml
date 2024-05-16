@@ -1,0 +1,73 @@
+#  https://docs.docker.com/compose/compose-file/build/
+
+services:
+  # DO NOT REMOVE THIS COMMENT https://github.com/sukesh-ak/setup-mosquitto-with-docker?tab=readme-ov-file
+  # mqtt5 eclipse-mosquitto
+  mqtt:
+    image: eclipse-mosquitto
+    container_name: mqtt
+    ports:
+      - "1883:1883" #default mqtt port
+      - "9001:9001" #default mqtt port for websockets
+    volumes:
+      - ./infrastructure/MqttBroker/config:/mosquitto/config:rw
+      - ./infrastructure/MqttBroker/data:/mosquitto/data:rw
+      - ./infrastructure/MqttBroker/log:/mosquitto/log:rw
+    restart: unless-stopped
+
+# reverse proxy
+  nginx:
+    image: nginx:latest
+    container_name: nginx
+    restart: unless-stopped
+    ports:
+      - 80:80
+      - 443:443
+    volumes:
+      - ./infrastructure/ReverseProxy/conf.d:/etc/nginx/conf.d
+#      - ./infrastructure/ReverseProxy/certs:/etc/nginx/certs
+#    networks:
+#      - mqtt5-network
+#      - mosquitto-net:
+
+
+  # ui app node.js
+  ui:
+    container_name: ui
+    build:
+      context: ./apps/client
+      target: dev
+    restart: unless-stopped
+    ports:
+      - 3000:3000
+    volumes:
+      - ./apps/client:/app:rw,cached
+    env_file:
+      - ./env.d/development/.env_ui
+
+# server app node.js
+  server:
+    container_name: server
+    build:
+      context: ./apps/server
+      target: dev
+    restart: unless-stopped
+    ports:
+      - 9229:9229
+    volumes:
+      - ./apps/server:/app:rw,cached
+    env_file:
+      - ./env.d/development/.env_server
+
+# volumes for mapping data,config and log
+#volumes:
+#  config:
+#  data:
+#  log:
+
+#networks:
+#  default:
+#    name: mqtt5-network
+#networks:
+#  mosquitto-net:
+#  ui-public:

@@ -1,67 +1,79 @@
-// import {wssConfig} from "./src/PubSub/WebSocket/WsWebSocketImplementation/wssConfig.js";
-import WinstonLoggerImplementation from "./src/Logger/WinstonImplementation/WinstonLoggerImplementation.js";
-import {winstonConfiguration} from "./src/Logger/WinstonImplementation/winstonConfiguration.js";
-// import WsWebSocketImplementation
-//     from "./src/PubSub/WebSocket/WsWebSocketImplementation/WsWebSocketImplementation.js";
-import {ApplicationService} from "./src/application/ApplicationService.js";
-import LoggerService from "./src/Logger/LoggerService.js";
-import PubSubServerService from "./src/PubSub/PubSubServerService.js";
-import {GpioService} from "./src/GPIO/GpioService.js";
-import DriverGpioOnOffImplementation from "./src/GPIO/DriverGpioOnOffImplementation/DriverGpioOnOffImplementation.js";
-import {MicrophoneMicImplementation} from "./src/Microphone/MicrophoneMicImplementation.js";
-import MicrophoneService from "./src/Microphone/MicrophoneService.js";
-import LedService from "./src/LED/LedService.js";
-import MqttMqttImplementation from "./src/PubSub/MQTT/MqttMqttImplementation/MqttMqttImplementation.js";
-import "dotenv/config";
+    import WinstonLoggerImplementation from "./src/Logger/WinstonImplementation/WinstonLoggerImplementation.js";
+    import {winstonConfiguration} from "./src/Logger/WinstonImplementation/winstonConfiguration.js";
+    import {ApplicationService} from "./src/application/ApplicationService.js";
+    import LoggerService from "./src/Logger/LoggerService.js";
+    import PubSubServerService from "./src/PubSub/PubSubServerService.js";
+    import {GpioService} from "./src/GPIO/GpioService.js";
+    import {MicrophoneMicImplementation} from "./src/Microphone/MicrophoneMicImplementation.js";
+    import MicrophoneService from "./src/Microphone/MicrophoneService.js";
+    import LedService from "./src/LED/LedService.js";
+    import MqttMqttImplementation from "./src/PubSub/MQTT/MqttMqttImplementation/MqttMqttImplementation.js";
+    import dotenv from "dotenv";
 
-let winstonLoggerImplementation = null;
-let loggerService = null;
+    dotenv.config({ path: '../../env.d/development/.env_server' });
 
-const startApplication = () => {
-    // https://github.com/winstonjs/winston#logging-levels
-    winstonLoggerImplementation = new WinstonLoggerImplementation({winstonConfiguration})
-    loggerService = new LoggerService({loggerImplementation: winstonLoggerImplementation})
+    let winstonLoggerImplementation = null;
+    let loggerService = null;
 
-    // const pubSubServerImplementation = new WsWebSocketImplementation({wssConfig, loggerService})
-    const pubSubServerImplementation = new MqttMqttImplementation({loggerService})
-    const pubSubServerService = new PubSubServerService({pubSubServerImplementation, loggerService})
+    const isLinuxOs = process.platform.match('linux')
 
-    const gpioDriver = new DriverGpioOnOffImplementation({loggerService})
-    const gpioService = new GpioService({loggerService, gpioDriver})
+    const startApplication = async () => {
+        // https://github.com/winstonjs/winston#logging-levels
+        winstonLoggerImplementation = new WinstonLoggerImplementation({winstonConfiguration})
+        loggerService = new LoggerService({loggerImplementation: winstonLoggerImplementation})
 
-    const microphoneImplementation = new MicrophoneMicImplementation({loggerService})
-    const microphoneService = new MicrophoneService({gpioService, loggerService, microphoneImplementation})
+        // const pubSubServerImplementation = new WsWebSocketImplementation({wssConfig, loggerService})
+        const pubSubServerImplementation = new MqttMqttImplementation({loggerService})
+        const pubSubServerService = new PubSubServerService({pubSubServerImplementation, loggerService})
 
-    const ledService = new LedService({
-        loggerService,
-        gpioService,
-        pubSubServerService,
-        microphoneService,
-    })
+        let gpioDriver
 
-    const applicationService = new ApplicationService({
-        loggerService,
-        pubSubServerService,
-        gpioService,
-        microphoneService,
-        ledService
-    })
+        if (isLinuxOs) {
+            const DriverGpioOnOffImplementation = await (await import("./src/GPIO/DriverGpioOnOffImplementation/DriverGpioOnOffImplementation.js")).default
+            gpioDriver = new DriverGpioOnOffImplementation({loggerService})
+        } else {
+            const DriverGpioFakeImplementation = (await import("./src/GPIO/DriverGpioFakeImplementation/DriverGpioFakeImplementation.js")).default
+            gpioDriver = new DriverGpioFakeImplementation({loggerService})
+        }
 
-    applicationService.start();
+        const gpioService = new GpioService({loggerService, gpioDriver})
 
-    process.on('SIGTERM', () => {
-        applicationService.stop()
+        const microphoneImplementation = new MicrophoneMicImplementation({loggerService})
+        const microphoneService = new MicrophoneService({gpioService, loggerService, microphoneImplementation})
+
+        const ledService = new LedService({
+            loggerService,
+            gpioService,
+            pubSubServerService,
+            microphoneService,
+        })
+
+        const applicationService = new ApplicationService({
+            loggerService,
+            pubSubServerService,
+            gpioService,
+            microphoneService,
+            ledService
+        })
+
+        applicationService.start();
+
+        process.on('SIGTERM', () => {
+            applicationService.stop()
+            process.exit(0);
+        });
+        process.on('SIGINT', () => {
+            applicationService.stop()
+            process.exit(0);
+        });
+    }
+
+    try {
+        await startApplication()
+    } catch (error) {
+        loggerService?.log({
+            level: "error",
+            message: `index.js :${error}`
+        }) || console.error(`index.js error : ${error}`)
         process.exit(0);
-    });
-    process.on('SIGINT', () => {
-        applicationService.stop()
-        process.exit(0);
-    });
-}
-
-try {
-    startApplication()
-} catch (error) {
-    loggerService?.log({level: "error", message: `index.js :${error}`}) || console.error(`index.js error : ${error}`)
-    process.exit(0);
-}
+    }

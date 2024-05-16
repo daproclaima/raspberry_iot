@@ -24,7 +24,10 @@ export default class LedDriver {
 
     start = () => {
         if(!this.#gpioService.getIsGpioOn()) {
-            throw new Error("LedDriver.start error: gpio is not accessible")
+            this.#loggerService.log({
+                level: 'info',
+                message: 'LedDriver.start gpio is not accessible',
+            })
         }
         
         this.#addLedToChip({lineNumber: LED_GPIO_LINE_NUMBER, type: LINE_TYPES.WRITE, defaultValue: 0, consumerServiceName: 'LedDriver'})

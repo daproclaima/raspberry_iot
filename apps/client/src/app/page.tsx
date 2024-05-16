@@ -26,18 +26,22 @@ export default function Home() {
 
     const mountMqttConnection = () => {
         const clientId = "client" + Math.random().toString(36).substring(7);
-      
+
         // Change this to point to your MQTT broker
+        // const host = process.env.NEXT_PUBLIC_MQTT_BROKER_URL;
+        console.log('process.env.NEXT_PUBLIC_MQTT_BROKER_URL ', process.env.NEXT_PUBLIC_MQTT_BROKER_URL)
         const host = process.env.NEXT_PUBLIC_MQTT_BROKER_URL;
-      
+
         const options: IClientOptions = {
           keepalive: 60,
-        //   clientId: clientId,
+          clientId,
           protocolId: "MQTT",
           protocolVersion: 4,
           clean: true,
           reconnectPeriod: 1000,
           connectTimeout: 30 * 1000,
+            username: "ui",
+            password: 'test',
         };
       
         const mqttClient: MqttClient = mqtt.connect(host, options)
