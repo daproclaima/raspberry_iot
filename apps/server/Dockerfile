@@ -1,4 +1,7 @@
 #https://kariera.future-processing.pl/blog/dockerfile-good-practices-for-node-and-npm/
+
+# docker run --network host --env MQTT_BROKER_URL='mqtt://user:pass@raspberrypi:1883' -v /sys:/sys -v /dev:/dev raspberry_iot-server:latest
+
 FROM node:22-alpine AS base
 
 # Install dependencies only when needed
@@ -49,7 +52,7 @@ RUN chown server:nodejs .
 # Automatically leverage output traces to reduce image size
 # https://nextjs.org/docs/advanced-features/output-file-tracing
 
-USER nextjs
+USER server
 
 RUN set -eux
 

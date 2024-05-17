@@ -56,6 +56,8 @@ services:
       - 9229:9229
     volumes:
       - ./apps/server:/app:rw,cached
+      - /sys:/sys
+      - /dev:/dev
     env_file:
       - ./env.d/development/.env_server
 
