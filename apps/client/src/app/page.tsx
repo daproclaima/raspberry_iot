@@ -1,12 +1,13 @@
 "use client"
 
 import mqtt, {IClientOptions, MqttClient} from "mqtt";
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
 // import WebSocket from "ws";
 
 let pubSubClient: {implementation: null | MqttClient, send: (topic: string, message: string) => void} = {implementation: null, send: (message) => {}}
 
 export default function Home() {
+    const [isLedOn, setIsLedOn] = useState(false)
     // const mountWebSocketConnection = () => {
     //     const webSocketClient = new WebSocket('ws://localhost:8080');
         
@@ -25,11 +26,10 @@ export default function Home() {
     // }
 
     const mountMqttConnection = () => {
-        const clientId = "client" + Math.random().toString(36).substring(7);
-
+        // https://github.com/mqttjs/mqtt-packet?tab=readme-ov-file#connect
+        // const clientId = "client" + Math.random().toString(36).substring(7);
+        const clientId = "ui"
         // Change this to point to your MQTT broker
-        // const host = process.env.NEXT_PUBLIC_MQTT_BROKER_URL;
-        console.log('process.env.NEXT_PUBLIC_MQTT_BROKER_URL ', process.env.NEXT_PUBLIC_MQTT_BROKER_URL)
         const host = process.env.NEXT_PUBLIC_MQTT_BROKER_URL;
 
         const options: IClientOptions = {
@@ -38,10 +38,9 @@ export default function Home() {
           protocolId: "MQTT",
           protocolVersion: 4,
           clean: true,
-          reconnectPeriod: 1000,
+          reconnectPeriod: 60,
+          keepAlive: 3600,
           connectTimeout: 30 * 1000,
-            username: "ui",
-            password: 'test',
         };
       
         const mqttClient: MqttClient = mqtt.connect(host, options)
@@ -55,7 +54,7 @@ export default function Home() {
       
         mqttClient.on("error", (err) => {
           console.log("Error: ", err);
-          mqttClient.end();
+        //   mqttClient.end();
         });
       
         // mqttClient.on("reconnect", () => {
@@ -81,15 +80,14 @@ export default function Home() {
         });
     }
 
-    const switchOnLed = () => {
+    const switchLed = (isLedOn: boolean) => {
         if(pubSubClient) {
-            pubSubClient.send('LED/CONTROL', 'SWITCH_ON_LED')
-        }
-    }
-
-    const switchOffLed = () => {
-        if(pubSubClient) {
-            pubSubClient.send('LED/CONTROL', 'SWITCH_OFF_LED')
+            if(!isLedOn) {
+                pubSubClient.send('LED/CONTROL', 'SWITCH_ON_LED')
+            } 
+            if(isLedOn) {
+                pubSubClient.send('LED/CONTROL', 'SWITCH_OFF_LED')
+            }
         }
     }
 
@@ -97,11 +95,20 @@ export default function Home() {
         mountMqttConnection()
     }, [])
 
+    useEffect(() => {
+        switchLed(isLedOn)
+    }, [isLedOn])
+
     return (
         <main className={'container'}>
-            <button type="button" className='button-green' role='button' onClick={switchOnLed}>Switch On</button>
-
-            <button type="button" className='button-red' role='button' onClick={switchOffLed}>Switch Off</button>
+          <button 
+            type="button" 
+            className={isLedOn ? 'button-green' : 'button-red'} 
+            role='button' 
+            onClick={() => setIsLedOn(isOn => !isOn)}
+          >
+            {isLedOn ? 'ON' : 'OFF'}
+          </button>
         </main>
     )
 }

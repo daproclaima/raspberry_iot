@@ -1,4 +1,5 @@
 #  https://docs.docker.com/compose/compose-file/build/
+#  https://squash.io/tutorial-host-network-in-docker-compose/
 
 services:
   # DO NOT REMOVE THIS COMMENT https://github.com/sukesh-ak/setup-mosquitto-with-docker?tab=readme-ov-file
@@ -6,9 +7,10 @@ services:
   mqtt:
     image: eclipse-mosquitto
     container_name: mqtt
-    ports:
-      - "1883:1883" #default mqtt port
-      - "9001:9001" #default mqtt port for websockets
+    # ports:
+    #   - "1883:1883" #default mqtt port
+    #   - "9001:9001" #default mqtt port for websockets
+    network_mode: host
     volumes:
       - ./infrastructure/MqttBroker/config:/mosquitto/config:rw
       - ./infrastructure/MqttBroker/data:/mosquitto/data:rw
@@ -17,15 +19,20 @@ services:
 
 # reverse proxy
   nginx:
-    image: nginx:latest
+    build:
+      context: ./infrastructure/ReverseProxy
+      dockerfile: Dockerfile
     container_name: nginx
     restart: unless-stopped
-    ports:
-      - 80:80
-      - 443:443
+    depends_on:
+      - ui
+    # ports:
+    #   - 80:80
+    #   # - 443:443
+    network_mode: host
     volumes:
-      - ./infrastructure/ReverseProxy/conf.d:/etc/nginx/conf.d:rw,cached
-#      - ./infrastructure/ReverseProxy/certs:/etc/nginx/certs
+     - ./infrastructure/ReverseProxy/conf.d:/etc/nginx/conf.d/
+     - ./infrastructure/ReverseProxy/certs:/etc/nginx/certs
 #    networks:
 #      - mqtt5-network
 #      - mosquitto-net:
@@ -38,8 +45,11 @@ services:
       context: ./apps/client
       target: dev
     restart: unless-stopped
-    ports:
-      - 3000:3000
+    depends_on:
+      - mqtt
+    # ports:
+    #   - 3000:3000
+    network_mode: host
     volumes:
       - ./apps/client:/app:rw,cached
     env_file:
@@ -51,9 +61,12 @@ services:
     build:
       context: ./apps/server
       target: dev
+    depends_on:
+      - mqtt
     restart: unless-stopped
-    ports:
-      - 9229:9229
+    # ports:
+    #   - 9229:9229
+    network_mode: host
     volumes:
       - ./apps/server:/app:rw,cached
       - /sys:/sys
@@ -67,9 +80,9 @@ services:
 #  data:
 #  log:
 
-#networks:
-#  default:
-#    name: mqtt5-network
+networks:
+ default:
+  #  name: mqtt5-network
 #networks:
 #  mosquitto-net:
 #  ui-public:

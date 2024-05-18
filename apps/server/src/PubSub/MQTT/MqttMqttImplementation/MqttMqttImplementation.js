@@ -26,15 +26,18 @@ export default class MqttMqttImplementation {
     }
 
     listen = ({callbackOnError, callbackOnConnection, callbackOnMessage, callbackOnOpen, callbackOnClose, arraySubscribedTopics = ["LED/CONTROL"]}) => {
+      try {
         const host = process.env.MQTT_BROKER_URL;
       
         const options = {
-          keepalive: 60,
-          protocolId: "MQTT",
-          protocolVersion: 4,
-          clean: true,
-          reconnectPeriod: 1000,
-          connectTimeout: 30 * 1000,
+        keepalive: 60,
+        clientId: 'raspberry',
+        protocolId: "MQTT",
+        protocolVersion: 4,
+        clean: true,
+        reconnectPeriod: 60,
+        keepAlive: 3600,
+        connectTimeout: 30 * 1000,
         };
 
         this.#server = mqtt.connect(host, options);
@@ -72,10 +75,18 @@ export default class MqttMqttImplementation {
         })
 
         this.#server.on(ERROR, (error) => {
-            this.#loggerService.log({
-                level: 'info',
-                message: `MqttMqttImplementation.listened error : ${error}`
-            })
+            if(error instanceof AggregateError) {
+                this.#loggerService.log({
+                    level: 'info',
+                    message: `MqttMqttImplementation.listened aggregate error : ${error.errors}`
+                })
+                console.log('host: ', host)
+            } else {
+                this.#loggerService.log({
+                    level: 'info',
+                    message: `MqttMqttImplementation.listened error : ${error}`
+                })
+            }
 
             const socket = {connection: null, request: null, client: null, server: this.#server}
             callbackOnError({socket, error})
@@ -90,6 +101,10 @@ export default class MqttMqttImplementation {
             const socket = {connetion: null, request: null, client: null, server: this.#server}
             callbackOnClose({socket})
         });
+
+        } catch(error) {
+            this.#loggerService.log({level: 'info', message: `MqttMqttImplementation.listen error: ${error}`})
+        }
 
         return this
     }
