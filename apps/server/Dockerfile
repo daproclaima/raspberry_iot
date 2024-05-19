@@ -3,12 +3,19 @@
 # docker run --network host --env MQTT_BROKER_URL='mqtt://user:pass@raspberrypi:1883' -v /sys:/sys -v /dev:/dev raspberry_iot-server:latest
 
 FROM node:22-alpine AS base
+ARG PUID=1001
+ARG PGID=1001
+
 
 # Install dependencies only when needed
 FROM base AS deps
 # Check https://github.com/nodejs/docker-node/tree/b4117f9333da4138b03a546ec926ef50a31506c3#nodealpine to understand why libc6-compat might be needed.
-RUN apk add --no-cache libc6-compat python3 py3-pip make g++
-
+RUN set -xe \
+    && apk add --no-cache -Uu --virtual .build-dependencies make g++ libc6-compat python3-dev libffi-dev openssl-dev build-base musl \
+    && pip3 install --no-cache --upgrade pyserial RPi.GPIO \
+    && apk del --purge .build-dependencies \
+    && apk add --no-cache --purge curl ca-certificates musl wiringpi \
+    && rm -rf /var/cache/apk/* /tmp/*
 WORKDIR /app
 
 # Install dependencies based on the preferred package manager
@@ -28,6 +35,10 @@ VOLUME /app/node_modules
 # "development" stage
 # depends on the "deps" stage above
 FROM deps AS dev
+
+COPY --from=deps /usr/lib /usr/lib
+COPY --from=deps /app/node_modules ./node_modules
+
 EXPOSE 9229
 CMD ["npm", "run", "dev"]
 

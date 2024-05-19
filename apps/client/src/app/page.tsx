@@ -30,7 +30,7 @@ export default function Home() {
         // const clientId = "client" + Math.random().toString(36).substring(7);
         const clientId = "ui"
         // Change this to point to your MQTT broker
-        const host = process.env.NEXT_PUBLIC_MQTT_BROKER_URL;
+        const host = process.env.NEXT_PUBLIC_MQTT_BROKER_URL ?? "";
 
         const options: IClientOptions = {
           keepalive: 60,
@@ -39,8 +39,9 @@ export default function Home() {
           protocolVersion: 4,
           clean: true,
           reconnectPeriod: 60,
-          keepAlive: 3600,
           connectTimeout: 30 * 1000,
+          username: process.env.NEXT_PUBLIC_MQTT_USER,
+          password: process.env.NEXT_PUBLIC_MQTT_PASSWORD,
         };
       
         const mqttClient: MqttClient = mqtt.connect(host, options)

@@ -15,7 +15,7 @@
     let winstonLoggerImplementation = null;
     let loggerService = null;
 
-    const isLinuxOs = process.platform.match('linux')
+    const isLinuxOs = process.env.OS === 'linux' && process.platform.match('linux')
 
     const startApplication = async () => {
         // https://github.com/winstonjs/winston#logging-levels
@@ -28,7 +28,7 @@
 
         let gpioDriver
 
-        if (isLinuxOs) {
+        if (process.env.OS === 'linux') {
             const DriverGpioOnOffImplementation = await (await import("./src/GPIO/DriverGpioOnOffImplementation/DriverGpioOnOffImplementation.js")).default
             gpioDriver = new DriverGpioOnOffImplementation({loggerService})
         } else {

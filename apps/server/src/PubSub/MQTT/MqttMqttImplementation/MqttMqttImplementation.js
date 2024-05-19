@@ -38,6 +38,8 @@ export default class MqttMqttImplementation {
         reconnectPeriod: 60,
         keepAlive: 3600,
         connectTimeout: 30 * 1000,
+            username: process.env.MQTT_USER,
+            password: process.env.MQTT_PASSWORD,
         };
 
         this.#server = mqtt.connect(host, options);
