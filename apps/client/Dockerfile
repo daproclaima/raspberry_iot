@@ -46,7 +46,8 @@ RUN adduser --system --uid 1001 nextjs
 
 COPY --from=deps /app ./app
 
-RUN set -eux; \
+RUN set -eux;
+
 CMD ["npm", "run", "build"]
 
 # "production" stage
@@ -58,10 +59,11 @@ ENV NEXT_TELEMETRY_DISABLED 1
 # set hostname to localhost
 ENV HOSTNAME "0.0.0.0"
 
-RUN addgroup --system --gid 1001 nodejs
-RUN adduser --system --uid 1001 nextjs
+RUN #addgroup --system --gid 1001 nodejs
+RUN #adduser --system --uid 1001 nextjs
 
 COPY --from=deps /app/node_modules ./node_modules
+#COPY --from=build /app/.next ./.next
 
 # Set the correct permission for prerender cache
 RUN mkdir .next
@@ -71,7 +73,6 @@ RUN chown nextjs:nodejs .next
 
 USER nextjs
 
-RUN set -eux; \
-	npm run build
+RUN set -eux;
 
 CMD ["npm", "run", "start"]

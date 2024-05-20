@@ -7,17 +7,15 @@ services:
   mqtt:
     image: eclipse-mosquitto
     container_name: mqtt
-    # ports:
-    #   - "1883:1883" #default mqtt port
-    #   - "9001:9001" #default mqtt port for websockets
-    network_mode: host
+    ports:
+      - "1883:1883" #default mqtt port
+      - "9001:9001" #default mqtt port for websockets
     volumes:
       - ./infrastructure/MqttBroker/config:/mosquitto/config:rw
       - ./infrastructure/MqttBroker/data:/mosquitto/data:rw
       - ./infrastructure/MqttBroker/log:/mosquitto/log:rw
     restart: unless-stopped
 
-#  https://luiscoutinh.medium.com/reverse-proxy-with-docker-traefik-nginx-php-mysql-mosquitto-phpmyadmin-basic-c9b588bda63a
 # reverse proxy
   nginx:
     build:
@@ -27,66 +25,49 @@ services:
     restart: unless-stopped
     depends_on:
       - ui
-    # ports:
-    #   - 80:80
-    #   # - 443:443
-    network_mode: host
+    ports:
+      - 80:80
+      - 443:443
+#      - 9002:9002
+#      - 1884:1884
     volumes:
      - ./infrastructure/ReverseProxy/conf.d:/etc/nginx/conf.d/:rw,cached
      - ./infrastructure/ReverseProxy/nginx.conf:/etc/nginx/nginx.conf:rw,cached
      - ./infrastructure/ReverseProxy/certs:/etc/nginx/certs
      - ./infrastructure/ReverseProxy/data:/data
-#    networks:
-#      - mqtt5-network
-#      - mosquitto-net:
-
 
   # ui app node.js
   ui:
     container_name: ui
     build:
       context: ./apps/client
-      target: dev
+      target: prod
     restart: unless-stopped
     depends_on:
       - mqtt
-    # ports:
-    #   - 3000:3000
-    network_mode: host
+    ports:
+      - 3000:3000
     volumes:
       - ./apps/client:/app:rw,cached
     env_file:
-      - ./env.d/development/.env_ui
+      - ./env.d/production/.env_ui
 
 # server app node.js
   server:
     container_name: server
     build:
       context: ./apps/server
-      target: dev
+      target: prod
     depends_on:
       - mqtt
     restart: unless-stopped
-    # ports:
-    #   - 9229:9229
-#    privileged: true
     network_mode: host
     volumes:
       - ./apps/server:/app:rw,cached
       - /sys:/sys
       - /dev:/dev
     env_file:
-      - ./env.d/development/.env_server
-
-# volumes for mapping data,config and log
-#volumes:
-#  config:
-#  data:
-#  log:
+      - ./env.d/production/.env_server
 
 networks:
  default:
-  #  name: mqtt5-network
-#networks:
-#  mosquitto-net:
-#  ui-public:

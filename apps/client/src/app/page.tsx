@@ -34,11 +34,12 @@ export default function Home() {
 
         const options: IClientOptions = {
           keepalive: 60,
+          encoding: "utf-8",
           clientId,
           protocolId: "MQTT",
           protocolVersion: 4,
           clean: true,
-          reconnectPeriod: 60,
+          reconnectPeriod: 1000,
           connectTimeout: 30 * 1000,
           username: process.env.NEXT_PUBLIC_MQTT_USER,
           password: process.env.NEXT_PUBLIC_MQTT_PASSWORD,

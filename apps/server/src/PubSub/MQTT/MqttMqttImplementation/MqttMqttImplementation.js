@@ -31,15 +31,15 @@ export default class MqttMqttImplementation {
       
         const options = {
         keepalive: 60,
+        encoding: "utf-8",
         clientId: 'raspberry',
         protocolId: "MQTT",
         protocolVersion: 4,
         clean: true,
-        reconnectPeriod: 60,
-        keepAlive: 3600,
+        reconnectPeriod: 1000,
         connectTimeout: 30 * 1000,
-            username: process.env.MQTT_USER,
-            password: process.env.MQTT_PASSWORD,
+        username: process.env.MQTT_USER,
+        password: process.env.MQTT_PASSWORD,
         };
 
         this.#server = mqtt.connect(host, options);

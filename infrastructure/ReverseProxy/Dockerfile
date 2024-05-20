@@ -3,4 +3,8 @@
 FROM nginx:alpine
 COPY ./conf.d etc/nginx/conf.d
 COPY ./data /data
+
 EXPOSE 80
+EXPOSE 443
+EXPOSE 9002
+EXPOSE 1884
