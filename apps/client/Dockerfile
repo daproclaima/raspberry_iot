@@ -28,6 +28,7 @@ VOLUME /app/node_modules
 # "development" stage
 # depends on the "deps" stage above
 FROM deps AS dev
+EXPOSE 9230
 CMD ["npm", "run", "dev"]
 
 

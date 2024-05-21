@@ -1,116 +1,46 @@
 "use client"
 
-import mqtt, {IClientOptions, MqttClient} from "mqtt";
-import { useEffect, useState } from "react";
-// import WebSocket from "ws";
-
-let pubSubClient: {implementation: null | MqttClient, send: (topic: string, message: string) => void} = {implementation: null, send: (message) => {}}
+import { useState } from "react";
 
 export default function Home() {
-    const [isLedOn, setIsLedOn] = useState(false)
-    // const mountWebSocketConnection = () => {
-    //     const webSocketClient = new WebSocket('ws://localhost:8080');
-        
-    //     pubSubClient = {
-    //         implementation: webSocketClient,
-    //         send: (message) => webSocketClient.send(message)
-    //     }
+    const [isLedOn, setIsLedOn] = useState(false);
 
-    //     webSocketClient.onopen = (e) => {
-    //         console.info("[open] Connection established");
-    //     };
+    const switchLed = async () => {
+        const value = !isLedOn
+        const message = value ? 'SWITCH_OFF_LED' : 'SWITCH_ON_LED';
 
-    //     webSocketClient.onmessage = (event) => {
-    //         console.info(`[message] Data received from server: ${event.data}`)
-    //     };
-    // }
+        try {
+            const response = await fetch('/api/mqtt', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({
+                    topic: 'LED/CONTROL',
+                    message: message,
+                }),
+            });
 
-    const mountMqttConnection = () => {
-        // https://github.com/mqttjs/mqtt-packet?tab=readme-ov-file#connect
-        // const clientId = "client" + Math.random().toString(36).substring(7);
-        const clientId = "ui"
-        // Change this to point to your MQTT broker
-        const host = process.env.NEXT_PUBLIC_MQTT_BROKER_URL ?? "";
-
-        const options: IClientOptions = {
-          keepalive: 60,
-          encoding: "utf-8",
-          clientId,
-          protocolId: "MQTT",
-          protocolVersion: 4,
-          clean: true,
-          reconnectPeriod: 1000,
-          connectTimeout: 30 * 1000,
-          username: process.env.NEXT_PUBLIC_MQTT_USER,
-          password: process.env.NEXT_PUBLIC_MQTT_PASSWORD,
-        };
-      
-        const mqttClient: MqttClient = mqtt.connect(host, options)
-
-        pubSubClient = {
-            implementation: mqttClient, 
-            send: (topic: string, message: string) => {
-                mqttClient.publish(topic, message)
+            if (!response.ok) {
+                throw new Error('Failed to publish MQTT message');
             }
-    }
-      
-        mqttClient.on("error", (err) => {
-          console.log("Error: ", err);
-        //   mqttClient.end();
-        });
-      
-        // mqttClient.on("reconnect", () => {
-        //   console.log("Reconnecting...");
-        // });
-      
-        mqttClient.on("connect", () => {
-          console.log("Client connected:" + clientId);
-        });
-      
-        // Received
-        mqttClient.on("message", (topic, message, packet) => {
-          console.log(
-            "Received Message: " + message.toString() + "\nOn topic: " + topic
-          );
-
-        //   if(topic === "LED_CONTROL") {
-        //       mqttClient.subscribe(topic, { qos: 0 });
-        //   }
-
-        //   const messageTextArea = document.querySelector("#message");
-        //   messageTextArea.value += message + "\r\n";
-        });
-    }
-
-    const switchLed = (isLedOn: boolean) => {
-        if(pubSubClient) {
-            if(!isLedOn) {
-                pubSubClient.send('LED/CONTROL', 'SWITCH_ON_LED')
-            } 
-            if(isLedOn) {
-                pubSubClient.send('LED/CONTROL', 'SWITCH_OFF_LED')
-            }
+            setIsLedOn(value)
+        } catch (error) {
+            console.error('Error:', error);
         }
-    }
+    };
 
-    useEffect(() => {
-        mountMqttConnection()
-    }, [])
-
-    useEffect(() => {
-        switchLed(isLedOn)
-    }, [isLedOn])
 
     return (
         <main className={'container'}>
-          <button 
-            type="button" 
-            className={isLedOn ? 'button-green' : 'button-red'} 
-            role='button' 
-            onClick={() => setIsLedOn(isOn => !isOn)}
-          >
-            {isLedOn ? 'ON' : 'OFF'}
-          </button>
+            <button
+                type="button"
+                className={isLedOn ? 'button-green' : 'button-red'}
+                role='button'
+                onClick={switchLed}
+            >
+                {isLedOn ? 'ON' : 'OFF'}
+            </button>
         </main>
-    )
+    );
 }
