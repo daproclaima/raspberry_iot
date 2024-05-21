@@ -28,7 +28,7 @@
 
         let gpioDriver
 
-        if (process.env.OS === 'linux') {
+        if (process.env.HARDWARE === 'raspberry-pi') {
             const DriverGpioOnOffImplementation = await (await import("./src/GPIO/DriverGpioOnOffImplementation/DriverGpioOnOffImplementation.js")).default
             gpioDriver = new DriverGpioOnOffImplementation({loggerService})
         } else {
