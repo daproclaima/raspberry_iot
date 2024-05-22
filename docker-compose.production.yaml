@@ -40,7 +40,7 @@ services:
   ui:
     container_name: ui
     build:
-      context: ./apps/client
+      context: ./apps/ui
       target: prod
     restart: unless-stopped
     depends_on:
@@ -48,7 +48,7 @@ services:
     ports:
       - 3000:3000
     volumes:
-      - ./apps/client:/app:rw,cached
+      - ./apps/ui:/app:rw,cached
     env_file:
       - ./env.d/production/.env_ui
 

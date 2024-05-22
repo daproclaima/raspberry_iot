@@ -45,7 +45,7 @@ services:
   ui:
     container_name: ui
     build:
-      context: ./apps/client
+      context: ./apps/ui
       target: dev
     restart: unless-stopped
     depends_on:
@@ -54,7 +54,7 @@ services:
     #   - 3000:3000
     network_mode: host
     volumes:
-      - ./apps/client:/app:rw,cached
+      - ./apps/ui:/app:rw,cached
     env_file:
       - ./env.d/development/.env_ui
 

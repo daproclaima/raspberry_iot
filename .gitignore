@@ -11,7 +11,7 @@ infrastructure/**/log/*
 # testing
 **/coverage
 
-# apps/client
+# apps/ui
 **/.next/
 **/out/
 **/.vercel
