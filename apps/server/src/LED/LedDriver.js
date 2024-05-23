@@ -85,7 +85,7 @@ export default class LedDriver {
         return this
     }
     
-    switchOffLed() {
+    switchOffLed = () => {
         this.#gpioService.setLineValue({lineNumber: LED_GPIO_LINE_NUMBER, value: 0})
         this.#loggerService.log({
             level: 'info',
@@ -93,5 +93,9 @@ export default class LedDriver {
         })
 
         return this
+    }
+
+    getIsGpioOn = () => {
+        return this.#gpioService.getIsGpioOn();
     }
 }

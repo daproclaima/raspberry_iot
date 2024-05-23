@@ -123,7 +123,7 @@ export default class LedService {
 
                 reply = this.#enumValidResponses.PUBSUB_REPLY_SWITCHED_ON_LED
 
-                if(this.#ledDriver.getIsLedLit()) {
+                if(!this.#ledDriver.getIsLedLit()) {
                     reply = this.#enumValidResponses.PUBSUB_REPLY_FAILED_SWITCH_ON_LED
                 }
                 break
