@@ -25,7 +25,7 @@ export default class MqttMqttImplementation {
         })
     }
 
-    listen = ({callbackOnError, callbackOnConnection, callbackOnMessage, callbackOnOpen, callbackOnClose, arraySubscribedTopics = ["LED/CONTROL"]}) => {
+    listen = ({callbackOnError, callbackOnConnection, callbackOnMessage, callbackOnOpen, callbackOnClose}) => {
       try {
         const host = process.env.MQTT_BROKER_URL;
       
@@ -48,7 +48,7 @@ export default class MqttMqttImplementation {
         this.#server.on(CONNECT, () => {
             this.#loggerService.log({
                 level: 'info',
-                message: 'MqttMqttImplementation is listening'
+                message: 'MqttMqttImplementation.listen started'
             })
             
             this.#server.isAlive = true;
@@ -56,23 +56,18 @@ export default class MqttMqttImplementation {
 
             const socket = {connection: null, request: null, client: null, server: this.#server}
             callbackOnConnection({socket})
-
-            arraySubscribedTopics.map(topic => {
-                this.#server.subscribe(topic)
-            })
         });
 
         this.#server.on(MESSAGE, (topic, message) => {
             console.log('topic: ', topic)
             const data = JSON.stringify({topic, message})
-            console.log('received: %s', data);
-        
+
             this.#loggerService.log({
                 level: 'info',
                 message: "MqttMqttImplementation.listened message"
             })
 
-            const socket = {connetion: null, request: null, client: null, server: this.#server}
+            const socket = {connection: null, request: null, client: null, server: this.#server}
             callbackOnMessage({socket, data})
         })
 
@@ -116,10 +111,10 @@ export default class MqttMqttImplementation {
             throw new Error("MqttMqttImplementation connection is not alive.")
         }
 
-        const payload = {topic: response.topic, message: response.message}
+        const {topic, message} = response
 
-        this.#server.publish(payload)
-        this.#loggerService.log({level: 'info', message: `MqttMqttImplementation.reply sent: ${JSON.stringify(payload)}`})
+        this.#server.publish(topic, message)
+        this.#loggerService.log({level: 'info', message: `MqttMqttImplementation.reply sent: ${JSON.stringify({topic, message})}`})
 
         return this
     }

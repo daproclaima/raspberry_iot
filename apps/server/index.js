@@ -15,7 +15,7 @@
     let winstonLoggerImplementation = null;
     let loggerService = null;
 
-    const isLinuxOs = process.env.OS === 'linux' && process.platform.match('linux')
+    // const isLinuxOs = process.env.OS === 'linux' && process.platform.match('linux')
 
     const startApplication = async () => {
         // https://github.com/winstonjs/winston#logging-levels
