@@ -49,6 +49,7 @@ COPY --from=deps /app ./app
 
 RUN set -eux;
 
+CMD ["npm", "run", "prepare"]
 CMD ["npm", "run", "build"]
 
 # "production" stage

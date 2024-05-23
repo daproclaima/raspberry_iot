@@ -3,6 +3,7 @@
 import {useEffect, useState} from "react";
 
 import mqtt, {IClientOptions, MqttClient} from "mqtt";
+import {Button} from "@/components/ui/button";
 
 let pubSubClient: {
     implementation: null | MqttClient,
@@ -159,13 +160,11 @@ export const HomeLayout = () => {
     },[])
 
     return (<main className={'container'}>
-        <button
-            type="button"
-            className={isLedOn ? 'button-green' : 'button-red'}
-            role='button'
-            onClick={switchLed}
-        >
+        <Button colorPalette={isLedOn ? "blue.light" : "sand"} variant="solid" type="button"
+                // className={isLedOn ? 'button-green' : 'button-red'}
+                role='button'
+                onClick={switchLed}>
             {isLedOn ? 'ON' : 'OFF'}
-        </button>
+        </Button>
     </main>)
 }

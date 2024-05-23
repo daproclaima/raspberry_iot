@@ -11,16 +11,15 @@
     "os": false
   },
   "scripts": {
+    "prepare": "panda codegen",
     "dev": "NODE_OPTIONS=--inspect=9230 next dev",
     "build": "next build",
     "start": "next start",
     "lint": "next lint"
   },
   "dependencies": {
+    "@ark-ui/react": "^2.2.3",
     "@next/env": "^14.2.3",
-    "@types/node": "20.6.1",
-    "@types/react": "18.2.21",
-    "@types/react-dom": "18.2.7",
     "dotenv": "^16.4.5",
     "eslint": "8.49.0",
     "eslint-config-next": "13.4.19",
@@ -28,7 +27,13 @@
     "next": "13.4.19",
     "react": "18.2.0",
     "react-dom": "18.2.0",
-    "typescript": "5.2.2",
-    "ws": "^8.17.0"
+    "typescript": "5.2.2"
+  },
+  "devDependencies": {
+    "@park-ui/panda-preset": "^0.37.1",
+    "@types/styled-system": "^5.1.22",
+    "@types/node": "20.6.1",
+    "@types/react": "18.2.21",
+    "@types/react-dom": "18.2.7"
   }
 }
