@@ -159,12 +159,19 @@ export const HomeLayout = () => {
         })
     },[])
 
-    return (<main className={'container'}>
-        <Button colorPalette={isLedOn ? "blue.light" : "sand"} variant="solid" type="button"
-                // className={isLedOn ? 'button-green' : 'button-red'}
-                role='button'
-                onClick={switchLed}>
-            {isLedOn ? 'ON' : 'OFF'}
-        </Button>
+    return (<main style={{position: "absolute", padding: "0 4rem", height: "100vh", width: "100vw"}}>
+        <section style={{position: "relative", width: "100%", height: "100vh", margin: "auto", display: "flex", justifyContent: "center", alignItems: "center"}}>
+            <div style={{position: "relative", margin: "auto", display: "inline-block"}}>
+                <Button 
+                    colorPalette={isLedOn ? "blue" : "sand"} 
+                    variant="solid"
+                    role='button'
+                    size="2xl"
+                    onClick={switchLed}
+                    >
+                    {isLedOn ? 'TURN OFF' : 'TURN ON'}
+                </Button>
+            </div>
+        </section>
     </main>)
 }
