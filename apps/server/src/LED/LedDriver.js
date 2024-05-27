@@ -1,4 +1,3 @@
-import {LINE_NUMBERS} from "../GPIO/LINE_NUMBERS.js"
 import {LINE_TYPES} from "../GPIO/LINE_TYPES.js"
 
 const LED_GPIO_LINE_NUMBER = "SIXTEEN"

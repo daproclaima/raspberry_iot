@@ -2,6 +2,7 @@
 
 import {Gpio} from "onoff";
 
+// line definition use should come from led or gpio services
 import {LINE_NUMBERS} from "../LINE_NUMBERS.js"
 import {LINE_TYPES} from "../LINE_TYPES.js"
 
