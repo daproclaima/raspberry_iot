@@ -1,4 +1,5 @@
 import LedDriver from "./LedDriver.js";
+import {aiLedMicrophone} from "./led-ai-mic.js"
 
 import {
     PUBSUB_MESSAGE_GET_STATE_LED,
@@ -67,7 +68,7 @@ export default class LedService {
         })
     }
 
-    start = () => {
+    start = async () => {
         if(!this.#pubSubServerService) {
             throw new Error('LedService.start: no pubSubServerService provided')
         }
@@ -101,6 +102,8 @@ export default class LedService {
         //     // callbackOnProcessExitComplete: () => {},
         //     // callbackOnResumeComplete: () => {},
         // })
+
+        // await this.#listenMicrophone();
 
         this.#loggerService.log({
             level: 'info',
@@ -182,5 +185,11 @@ export default class LedService {
             level: 'info',
             message: 'LedService.#callbackOnConnectionPublishSubscribe executed successfully',
         })
+    }
+
+    #listenMicrophone = () => {
+        aiLedMicrophone().catch(console.error)
+
+        return this
     }
 }

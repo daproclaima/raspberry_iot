@@ -40,3 +40,6 @@ infrastructure/**/log/*
 **/*.pem
 **/.idea
 
+// sound records
+**/*.wav
+
